@@ -1,7 +1,7 @@
 import { Page, Locator } from '@playwright/test';
 import { BasePage } from './basePage';
 import { PoliciesPage } from './policiesPage';
-import { AlertsPage } from './alertsPage';
+import { AlertsPage } from './alerts/alertsPage';
 import { ScanActivityPage } from './scanActivityPage';
 
 export class NavigatePage extends BasePage {

@@ -15,6 +15,7 @@
 
     "test:ui": "playwright test src/tests/ui",
     "test:ui:login": "playwright test src/tests/ui/specs/login.spec.ts",
+    "test:ui:alerts": "playwright test src/tests/ui/specs/alerts.spec.ts",
     "test:debug": "playwright test --debug",
     "test:headed": "playwright test --headed"
   },
