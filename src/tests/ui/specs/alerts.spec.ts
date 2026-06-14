@@ -3,6 +3,7 @@ import { AlertsPage } from '../pages/alerts/alertsPage';
 import { TestSetup } from '../helpers/testSetup';
 import { UIPages } from '../enums/pages.enum';
 import { AlertStatus } from '../enums/alertStatus.enum';
+import { AlertAssignee } from '../enums/alertAssignee.enum';
 import { AutoRemediateStatus } from '../enums/autoRemediateStatus.enum';
 import { Logger } from '../../../utilities/helpers/logger';
 
@@ -17,6 +18,9 @@ test.describe('UI - Alerts Tests with Alert Life Cycle', () => {
 
 
   test.afterEach(async () => {
+    //There was a request to do cleanup in the end , if i play with it manually i dont have cleanup i can
+    // if i loaded a docker and start it will be in cleanup
+    // i can add cleanup in the beginning also
     await testSetup.cleanup();
   });
   
@@ -47,7 +51,39 @@ test.describe('UI - Alerts Tests with Alert Life Cycle', () => {
     const selectedStatus = await alertsPage.getSelectedAutoRemediateStatus();
     expect(selectedStatus).toBe(AutoRemediateStatus.OFF);
 
-    
+    // Verify total alerts count from UI
+    const totalAlertsCount = await alertsPage.getTotalAlertsCount();
+    Logger.info(`Total alerts from UI: ${totalAlertsCount}`);
+    expect(totalAlertsCount).toBe(6);
+    //TODO do we want to verify in Other places as well ? do we have other test that doing it ?
+
+    const firstAlertTitle = await alertsPage.getFirstAlertTitle();
+    Logger.info(`First alert title: ${firstAlertTitle}`);
+    expect(firstAlertTitle).toContain('Detected');
+
+    // Click the first alert to open the details drawer
+    const alertItemPage = await alertsPage.clickFirstAlert();
+    Logger.info('Alert details drawer opened');
+
+    // Change alert status to In Progress
+    await alertItemPage.changeStatus(AlertStatus.IN_PROGRESS);
+    Logger.info(`Changed alert status to ${AlertStatus.IN_PROGRESS}`);
+
+    // Change assignee to Security Analyst
+    await alertItemPage.changeAssignee(AlertAssignee.SECURITY_ANALYST);
+    Logger.info(`Changed assignee to ${AlertAssignee.SECURITY_ANALYST}`);
+
+    // Expand remediation section
+    await alertItemPage.expandRemediationSection();
+    Logger.info('Expanded remediation section');
+
+    // Add remediation comment
+    await alertItemPage.addRemediationComment('Remediation verified successfully and issue is resolved');
+    Logger.info('Added remediation comment');
+
+    const totalAlertsCountAfterFilter = await alertsPage.getTotalAlertsCount();
+    Logger.info(`Total alerts from UI after filter: ${totalAlertsCountAfterFilter}`);
+    expect(totalAlertsCountAfterFilter).toBe(5);
 
     Logger.info('Test passed: Alerts filtered by status successfully');
   });
