@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment variables - use .env.example instead
+.env
+.env.*.local
+
+# Build output
+dist/
+*.js
+*.d.ts
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# Test reports and results
+playwright-report/
+test-results/
+.test-cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local files
+*.log
