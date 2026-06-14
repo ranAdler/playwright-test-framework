@@ -1,6 +1,5 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../../fixtures/testSetupFixture';
 import { AlertsPage } from '../pages/alerts/alertsPage';
-import { TestSetup } from '../helpers/testSetup';
 import { UIPages } from '../enums/pages.enum';
 import { AlertStatus } from '../enums/alertStatus.enum';
 import { AlertAssignee } from '../enums/alertAssignee.enum';
@@ -8,25 +7,13 @@ import { AutoRemediateStatus } from '../enums/autoRemediateStatus.enum';
 import { Logger } from '../../../utilities/helpers/logger';
 
 test.describe('UI - Alerts Tests with Alert Life Cycle', () => {
-  let testSetup: TestSetup;
-
-  test.beforeEach(async ({ request, page }) => {
-    testSetup = new TestSetup(request);
-    await testSetup.setup();
-    await testSetup.loginViaApi(page);
-  });
-
-
-  test.afterEach(async () => {
-    //There was a request to do cleanup in the end , if i play with it manually i dont have cleanup i can
-    // if i loaded a docker and start it will be in cleanup
-    // i can add cleanup in the beginning also
-    await testSetup.cleanup();
-  });
   
 
-  test('Alert Life Cycle', async ({ page }) => {
+  test('Alert Life Cycle', async ({ testSetup, page }) => {
     Logger.info('Test: Alert Life Cycle');
+
+    // Login via API using fixture setup
+    await testSetup.loginViaApi(page);
 
     // Navigate to alerts page
     await page.goto(UIPages.ALERTS);
