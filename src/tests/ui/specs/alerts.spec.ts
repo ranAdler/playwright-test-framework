@@ -8,10 +8,12 @@ import { Logger } from '../../../utilities/helpers/logger';
 test.describe('UI - Alerts Tests with Alert Life Cycle', () => {
   let testSetup: TestSetup;
 
-  test.beforeEach(async ({ request }) => {
+  test.beforeEach(async ({ request, page }) => {
     testSetup = new TestSetup(request);
     await testSetup.setup();
+    await testSetup.loginViaApi(page);
   });
+
 
   test.afterEach(async () => {
     await testSetup.cleanup();
@@ -19,9 +21,6 @@ test.describe('UI - Alerts Tests with Alert Life Cycle', () => {
 
   test('should display alerts page with API-generated test data', async ({ page }) => {
     Logger.info('Test: Open alerts page');
-
-    // UI Login (uses the TestSetup helper)
-    await testSetup.loginViaUI(page, TEST_USERS.VALID_USER.username, TEST_USERS.VALID_USER.password);
 
     // Navigate to alerts page
     await page.goto(UIPages.ALERTS);

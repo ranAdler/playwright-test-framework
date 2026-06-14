@@ -13,6 +13,7 @@ export class AlertLifeCycle {
   private resetClient: ResetClient;
   public alertsClient: AlertsClient;
   public authToken: string = '';
+  public userData: any = null;
 
   constructor(request: APIRequestContext) {
     this.request = request;
@@ -33,6 +34,7 @@ export class AlertLifeCycle {
 
     const loginBody = await loginResponse.json();
     this.authToken = loginBody.token;
+    this.userData = loginBody.user;
 
     Logger.info(`AlertLifeCycle: Authentication successful, token obtained`);
 

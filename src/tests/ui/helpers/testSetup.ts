@@ -3,6 +3,7 @@ import { AlertLifeCycle } from '../../api/helpers/alertLifeCycle';
 import { LoginPage } from '../pages/loginPage';
 import { TEST_USERS } from '../../../utilities/config/constants';
 import { Logger } from '../../../utilities/helpers/logger';
+import config from '../../../utilities/config/env';
 
 export class TestSetup {
   public alertLifeCycle: AlertLifeCycle;
@@ -38,6 +39,49 @@ export class TestSetup {
   }
 
   /**
+   * Login via API and set auth token in browser
+   * Uses the existing token from alertLifeCycle to avoid duplicate API calls
+   * This allows navigating to the page without UI login flow
+   */
+  async loginViaApi(page: Page): Promise<void> {
+    this.page = page;
+    Logger.info('TestSetup: Logging in via API');
+
+    // Use existing token and user data from alertLifeCycle (already obtained in setup())
+    const token = this.alertLifeCycle.authToken;
+    const userData = this.alertLifeCycle.userData;
+
+    if (!token) {
+      throw new Error('API login failed - No auth token received');
+    }
+
+    Logger.info('TestSetup: Auth token and user data obtained from API');
+
+    // Navigate to home page with the actual app URL
+    await page.goto(config.baseURL);
+
+    // Set token and user in localStorage and reload page
+    await page.evaluate(({ authToken, user }) => {
+      localStorage.setItem('token', authToken);
+      localStorage.setItem('user', JSON.stringify(user));
+    }, { authToken: token, user: userData });
+
+    Logger.info('TestSetup: Auth token and user data saved to browser localStorage');
+
+    // Reload so app initializes with the token and user
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+
+    // Wait for main navigation to confirm app recognizes authentication
+    try {
+      await page.locator('nav[aria-label="Main navigation"]').waitFor({ state: 'visible', timeout: 5000 });
+      Logger.info('TestSetup: Main navigation visible - app authenticated');
+    } catch {
+      Logger.info('TestSetup: Main navigation not visible, but proceeding');
+    }
+  }
+
+  /**
    * Login via UI (required since app uses session-based auth)
    * This ensures the browser has a valid session
    */
@@ -65,13 +109,14 @@ export class TestSetup {
   async cleanup(): Promise<void> {
     Logger.info('AlertTestSetup: Running cleanup');
 
-    // Clear auth token from browser (only if page is properly loaded)
+    // Clear auth token and user from browser (only if page is properly loaded)
     if (this.page) {
       try {
         await this.page.evaluate(() => {
-          localStorage.removeItem('authToken');
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
         });
-        Logger.info('AlertTestSetup: Auth token removed from localStorage');
+        Logger.info('AlertTestSetup: Auth token and user data removed from localStorage');
       } catch (error) {
         Logger.info('AlertTestSetup: Could not access localStorage (page may not be loaded)');
       }
