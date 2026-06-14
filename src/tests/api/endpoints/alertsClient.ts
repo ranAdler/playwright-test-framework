@@ -27,8 +27,8 @@ export class AlertsClient extends BaseClient {
     return this.patch(`/alerts/${alertId}`, { status });
   }
 
-  async addAlertComment(alertId: string, comment: string): Promise<APIResponse> {
-    return this.post(`/alerts/${alertId}/comments`, { comment });
+  async addRemediationNote(alertId: string, note: string): Promise<APIResponse> {
+    return this.post(`/alerts/${alertId}/remediate`, { note });
   }
 
   async getAlertsByAutoRemediate(autoRemediate: boolean): Promise<any[]> {
