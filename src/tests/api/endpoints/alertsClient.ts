@@ -43,6 +43,12 @@ export class AlertsClient extends BaseClient {
     return response;
   }
 
+  async assignAlert(alertId: string, assignedToId: string): Promise<APIResponse> {
+    const response = await this.patch(`/alerts/${alertId}`, { assignedToId });
+    this.validateResponse(response, 200);
+    return response;
+  }
+
   async getAlertsByAutoRemediate(autoRemediate: boolean): Promise<any[]> {
     const allAlerts = await this.getAlerts();
     if (allAlerts.status() === 200) {
