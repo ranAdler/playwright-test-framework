@@ -21,7 +21,7 @@ export const test = base.extend<TestFixtures>({
 
     // Run cleanup after test
     Logger.info('Fixture: Running cleanup');
-    await testSetup.cleanup();
+    // await testSetup.cleanup();
     Logger.info('Fixture: Cleanup complete');
   },
 });

@@ -20,19 +20,27 @@ export class AlertsClient extends BaseClient {
   }
 
   async remediateAlert(alertId: string, note: string): Promise<APIResponse> {
-    return this.post(`/alerts/${alertId}/remediate`, { note });
+    const response = await this.post(`/alerts/${alertId}/remediate`, { note });
+    this.validateResponse(response, 200);
+    return response;
   }
 
   async changeAlertStatus(alertId: string, status: string): Promise<APIResponse> {
-    return this.patch(`/alerts/${alertId}`, { status });
+    const response = await this.patch(`/alerts/${alertId}`, { status });
+    this.validateResponse(response, 200);
+    return response;
   }
 
   async addRemediationNote(alertId: string, note: string): Promise<APIResponse> {
-    return this.post(`/alerts/${alertId}/remediate`, { note });
+    const response = await this.post(`/alerts/${alertId}/remediate`, { note });
+    this.validateResponse(response, 200);
+    return response;
   }
 
-    async addComment(alertId: string, comment: string): Promise<APIResponse> {
-    return this.post(`/alerts/${alertId}/comments`, { comment });
+  async addComment(alertId: string, comment: string): Promise<APIResponse> {
+    const response = await this.post(`/alerts/${alertId}/comments`, { comment });
+    this.validateResponse(response, 200);
+    return response;
   }
 
   async getAlertsByAutoRemediate(autoRemediate: boolean): Promise<any[]> {

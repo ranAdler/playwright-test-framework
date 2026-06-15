@@ -1,4 +1,4 @@
-import { APIRequestContext } from '@playwright/test';
+import { APIRequestContext, APIResponse } from '@playwright/test';
 import config from '../../../utilities/config/env';
 
 export class BaseClient {
@@ -13,6 +13,13 @@ export class BaseClient {
 
   public setAuthToken(token: string) {
     this.headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  protected validateResponse(response: APIResponse, expectedStatus: number): void {
+    const actualStatus = response.status();
+    if (actualStatus !== expectedStatus) {
+      throw new Error(`Expected status ${expectedStatus}, but got ${actualStatus}`);
+    }
   }
 
   protected async get(endpoint: string, params?: Record<string, any>) {
