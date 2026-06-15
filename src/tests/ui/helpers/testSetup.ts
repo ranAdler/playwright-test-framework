@@ -71,10 +71,14 @@ export class TestSetup {
     await page.goto(config.baseURL);
 
     // Set token and user in localStorage and reload page
-    await page.evaluate(({ authToken, user }) => {
-      localStorage.setItem('token', authToken);
-      localStorage.setItem('user', JSON.stringify(user));
-    }, { authToken: token, user: userData });
+    try {
+      await page.evaluate(({ authToken, user }) => {
+        localStorage.setItem('token', authToken);
+        localStorage.setItem('user', JSON.stringify(user));
+      }, { authToken: token, user: userData });
+    } catch (error) {
+      throw new Error(`Failed to set localStorage: ${error instanceof Error ? error.message : String(error)}`);
+    }
 
     Logger.info('TestSetup: Auth token and user data saved to browser localStorage');
 

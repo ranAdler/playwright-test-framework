@@ -16,7 +16,6 @@ test.describe('API - Login Tests', () => {
       TEST_USERS.VALID_USER.username,
       TEST_USERS.VALID_USER.password
     );
-    console.log('-----Response:' , response);
     expect(response.status()).toBe(200);
     const responseBody = await response.json();
     expect(responseBody).toHaveProperty('token');

@@ -6,13 +6,11 @@ export class SearchPage {
   private page: Page;
   private readonly statusFilterButton: Locator;
   private readonly autoRemediateFilterButton: Locator;
-  private readonly statusListbox: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.statusFilterButton = page.locator('button[id="alert-status-filter"]');
     this.autoRemediateFilterButton = page.locator('button[id="alert-auto-remediate-filter"]');
-    this.statusListbox = page.locator('div[role="listbox"]');
   }
 
   async clickStatusFilter(): Promise<void> {
@@ -21,12 +19,13 @@ export class SearchPage {
 
   async selectStatus(status: AlertStatus): Promise<void> {
     await this.clickStatusFilter();
-    await this.page.waitForTimeout(300);
+    const listbox = this.page.locator('div[role="listbox"]').first();
+    await listbox.waitFor({ state: 'visible', timeout: 5000 });
 
     // Target the status option within the listbox
     const statusOption = this.page.locator('div[role="option"]').filter({ hasText: status }).first();
     await statusOption.click();
-    await this.page.waitForTimeout(300);
+
 
     // Verify status was selected in dropdown
     const selectedStatus = await this.getSelectedStatus();
@@ -66,12 +65,14 @@ export class SearchPage {
 
   async selectAutoRemediateStatus(status: AutoRemediateStatus): Promise<void> {
     await this.clickAutoRemediateFilter();
-    await this.page.waitForTimeout(300);
+    const listbox = this.page.locator('div[role="listbox"]').last();
+    await listbox.waitFor({ state: 'visible', timeout: 5000 });
 
     // Target the auto remediate option within the listbox
     const autoRemediateOption = this.page.locator('div[role="option"]').filter({ hasText: status }).first();
-    await autoRemediateOption.click();
-    await this.page.waitForTimeout(300);
+    await autoRemediateOption.scrollIntoViewIfNeeded();
+    await autoRemediateOption.click({ force: true });
+    await listbox.waitFor({ state: 'hidden', timeout: 5000 });
 
     // Verify auto remediate status was selected
     const selectedStatus = await this.getSelectedAutoRemediateStatus();

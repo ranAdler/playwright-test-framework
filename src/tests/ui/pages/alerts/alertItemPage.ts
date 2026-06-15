@@ -63,12 +63,14 @@ export class AlertItemPage {
     const statusButton = this.drawer.locator('button[id="alert-status"]');
     await statusButton.click();
     await this.page.locator(`[role="option"]:has-text("${status}")`).click();
+    await statusButton.waitFor({ state: 'visible', timeout: 5000 });
   }
 
   async changeAssignee(assignee: AlertAssignee): Promise<void> {
     const assigneeButton = this.drawer.locator('button[id="alert-assignee"]');
     await assigneeButton.click();
     await this.page.locator(`[role="option"]:has-text("${assignee}")`).click();
+    await assigneeButton.waitFor({ state: 'visible', timeout: 5000 });
   }
 
   async expandRemediationSection(): Promise<void> {
@@ -79,5 +81,6 @@ export class AlertItemPage {
   async addRemediationComment(comment: string): Promise<void> {
     const commentTextarea = this.drawer.locator('textarea[placeholder="Add a comment..."]');
     await commentTextarea.fill(comment);
+    await commentTextarea.waitFor({ state: 'visible', timeout: 5000 });
   }
 }
