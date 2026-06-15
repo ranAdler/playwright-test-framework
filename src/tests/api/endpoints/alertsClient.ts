@@ -31,6 +31,10 @@ export class AlertsClient extends BaseClient {
     return this.post(`/alerts/${alertId}/remediate`, { note });
   }
 
+    async addComment(alertId: string, comment: string): Promise<APIResponse> {
+    return this.post(`/alerts/${alertId}/comments`, { comment });
+  }
+
   async getAlertsByAutoRemediate(autoRemediate: boolean): Promise<any[]> {
     const allAlerts = await this.getAlerts();
     if (allAlerts.status() === 200) {

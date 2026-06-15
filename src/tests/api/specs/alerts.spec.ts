@@ -1,142 +1,99 @@
 import { test, expect } from '../../fixtures/testSetupFixture';
 import { Logger } from '../../../utilities/helpers/logger';
 import { AlertStatus } from '../enums/alertStatus.enum';
+import { alertRemediationPolicyPayload } from '../resources/alertRemediationPolicyPayload';
 
 test.describe.serial('API - Alerts Tests', () => {
-  // test('Alert Management: Status Change & Remediation', async ({ testSetup }) => {
-  //   Logger.info('Test: Alert Management - Status Change & Remediation');
-  //
-  //   // Step 1: Get alerts count before test
-  //   Logger.info('Step 1: Getting alerts count BEFORE test...');
-  //   const allAlertsBefore = await testSetup.alertLifeCycle.getAlerts();
-  //   const alertsCountBefore = allAlertsBefore.length;
-  //   Logger.info(`Alerts count BEFORE: ${alertsCountBefore}`);
-  //
-  //   // Step 2: Filter alerts for status OPEN
-  //   Logger.info('Step 2: Filtering alerts for status OPEN...');
-  //   const targetStatuses = [AlertStatus.OPEN];
-  //   const filteredAlerts = allAlertsBefore.filter((alert: any) =>
-  //     targetStatuses.includes(alert.status)
-  //   );
-  //
-  //   expect(filteredAlerts.length).toBeGreaterThan(0);
-  //   const targetAlert = filteredAlerts[0];
-  //   Logger.info(`Found alert with ID: ${targetAlert.id}, Status: ${targetAlert.status}`);
-  //
-  //   // Step 3: Validate the alert structure
-  //   Logger.info('Step 3: Validating alert structure...');
-  //   expect(targetAlert).toHaveProperty('id');
-  //   expect(targetAlert).toHaveProperty('status');
-  //   expect(targetStatuses).toContain(targetAlert.status);
-  //   expect(targetAlert).toHaveProperty('remediation');
-  //   expect(targetAlert.remediation).toHaveProperty('autoRemediate');
-  //   Logger.info(`Alert structure validation passed. Auto Remediate: ${targetAlert.remediation.autoRemediate}`);
-  //
-  //   // Step 4: Validate remediation details
-  //   Logger.info('Step 4: Validating remediation details...');
-  //   expect(targetAlert.remediation).toHaveProperty('type');
-  //   expect(targetAlert.remediation).toHaveProperty('priority');
-  //   expect(targetAlert.remediation).toHaveProperty('dueDate');
-  //   Logger.info(`Remediation Type: ${targetAlert.remediation.type}, Priority: ${targetAlert.remediation.priority}`);
-  //
-  //   // Step 5: Change alert status to IN_PROGRESS
-  //   Logger.info('Step 5: Changing alert status to IN_PROGRESS...');
-  //   const changeStatusResponse = await testSetup.alertLifeCycle.alertsClient.changeAlertStatus(targetAlert.id, AlertStatus.IN_PROGRESS);
-  //   expect(changeStatusResponse.status()).toBe(200);
-  //   Logger.info(`✓ Alert status changed to IN_PROGRESS for alert ${targetAlert.id}`);
-  //
-  //   // Step 6: Verify alert status was changed
-  //   Logger.info('Step 6: Verifying alert status was changed...');
-  //   const allAlertsAfterStatusChange = await testSetup.alertLifeCycle.getAlerts();
-  //   const updatedAlert = allAlertsAfterStatusChange.find((a: any) => a.id === targetAlert.id);
-  //   expect(updatedAlert).toBeTruthy();
-  //   expect(updatedAlert.status).toBe('IN_PROGRESS');
-  //   Logger.info(`✓ Verified alert status is now IN_PROGRESS`);
-  //
-  //   // Step 7: Add remediation note
-  //   Logger.info('Step 7: Adding remediation note...');
-  //   const remediateResponse = await testSetup.alertLifeCycle.alertsClient.remediateAlert(targetAlert.id, 'Remediation verified successfully and issue is resolved');
-  //   expect(remediateResponse.status()).toBe(200);
-  //   Logger.info(`✓ Remediation note added for alert ${targetAlert.id}`);
-  //
-  //   // Step 8: Get alerts count after test
-  //   Logger.info('Step 8: Getting alerts count AFTER test...');
-  //   const allAlertsAfter = await testSetup.alertLifeCycle.getAlerts();
-  //   const alertsCountAfter = allAlertsAfter.length;
-  //   Logger.info(`Alerts count AFTER: ${alertsCountAfter}`);
-  //
-  //   // Step 9: Verify counts match (no alerts added or removed)
-  //   Logger.info('Step 9: Verifying alert counts before and after...');
-  //   expect(alertsCountAfter).toBe(alertsCountBefore);
-  //   Logger.info(`✓ Alert counts match: Before=${alertsCountBefore}, After=${alertsCountAfter}`);
-  //
-  //   Logger.info('Alert test completed successfully!');
-  // });
 
   test('Alert Life Cycle: Auto-Remediation + Rescan Verification', async ({ testSetup }) => {
     Logger.info('TEST: Alert Life Cycle - Auto-Remediation + Rescan Verification');
-    Logger.info('NOTE: This test is EXPECTED TO FAIL due to known data issue - demonstrates remediation was not effective');
+    Logger.info('NOTE: This test is EXPECTED TO FAIL - demonstrates remediation was not effective');
 
+    // Step 0: Create a policy with autoRemediate: false to get OPEN status alerts
+    Logger.info('Step 0: Creating test policy with autoRemediate: false for testable alerts...');
+    const createdPolicy = await testSetup.policyLifeCycle.createPolicy(alertRemediationPolicyPayload);
+    Logger.info(`✓ Policy created with ID: ${createdPolicy.id}, autoRemediate: false`);
+
+    // Step 0b: Run a scan to generate alerts
+    Logger.info('Step 0b: Running scan to generate OPEN status alerts...');
+    await testSetup.policyLifeCycle.scan();
+    Logger.info(`✓ Scan completed`);
+
+    // Step 1: Get all alerts
+    Logger.info('Step 1: Retrieving all alerts from system...');
     const allAlerts = await testSetup.alertLifeCycle.getAlerts();
-    Logger.info(`Total alerts in system: ${allAlerts.length}`);
+    Logger.info(`✓ Total alerts in system: ${allAlerts.length}`);
+    expect(allAlerts.length).toBeGreaterThan(0);
 
-    const remediableAlerts = allAlerts.filter((alert: any) =>
-      alert.remediation?.autoRemediate === false && alert.status === 'OPEN'
-    );
-    expect(remediableAlerts.length).toBeGreaterThan(0);
+    // Step 2: Find an alert with OPEN status
+    Logger.info('Step 2: Finding alert with status "OPEN"...');
+    const openAlerts = allAlerts.filter((alert: any) => alert.status === 'OPEN');
+    Logger.info(`Found ${openAlerts.length} OPEN status alerts`);
+    expect(openAlerts.length).toBeGreaterThan(0);
 
-    const targetAlert = remediableAlerts[0];
-    Logger.info(`Target alert: ID=${targetAlert.id}, Status=${targetAlert.status}, AutoRemediate=${targetAlert.remediation.autoRemediate}`);
+    const targetAlert = openAlerts[0];
+    Logger.info(`✓ Found target alert: ID=${targetAlert.id}, Status=${targetAlert.status}, Policy=${targetAlert.policyName}`);
 
-    // Save the original alert details before making any changes
-    Logger.info('Saving original alert details before changes...');
+    // Save the original alert details for verification after rescan
+    Logger.info('Step 3: Saving original alert details for post-rescan verification...');
     const originalAlertDetails = {
       id: targetAlert.id,
       policyId: targetAlert.policyId,
+      policyName: targetAlert.policyName,
       assetId: targetAlert.assetId,
       violationType: targetAlert.violationType,
       status: targetAlert.status
     };
     Logger.info(`✓ Saved alert details: ID=${originalAlertDetails.id}, Policy=${originalAlertDetails.policyId}, Asset=${originalAlertDetails.assetId}, ViolationType=${originalAlertDetails.violationType}`);
 
-    // Change status to IN_PROGRESS
-    Logger.info('Changing alert status to IN_PROGRESS...');
-    const statusResponse = await testSetup.alertLifeCycle.alertsClient.changeAlertStatus(originalAlertDetails.id, AlertStatus.IN_PROGRESS);
-    expect(statusResponse.status()).toBe(200);
+    // Step 4: Change alert status to IN_PROGRESS (first step)
+    Logger.info('Step 4: Changing alert status OPEN → IN_PROGRESS...');
+    const toInProgressResponse = await testSetup.alertLifeCycle.alertsClient.changeAlertStatus(
+      originalAlertDetails.id,
+      AlertStatus.IN_PROGRESS
+    );
+    expect(toInProgressResponse.status()).toBe(200);
     Logger.info(`✓ Status changed to IN_PROGRESS for alert ${originalAlertDetails.id}`);
 
-    // Add remediation verification comment
-    Logger.info('Adding remediation verification comment...');
-    const commentResponse = await testSetup.alertLifeCycle.alertsClient.addRemediationNote(originalAlertDetails.id, 'Remediation verified successfully and issue is resolved');
-    expect(commentResponse.status()).toBe(200);
-    Logger.info(`✓ Note added: "Remediation verified successfully and issue is resolved"`);
+    // Step 5: Add remediation verification comment (TODO: Handle comment logic separately)
+    // NOTE: addRemediationNote() auto-triggers REMEDIATION_IN_PROGRESS status which blocks RESOLVED transition
+    // This will be handled later with alternative comment endpoint
+    Logger.info('Step 5: Comment "Remediation verified successfully and issue is resolved" - TODO: Handle separately');
 
-    // Start scan to verify remediation
-    Logger.info('Starting rescan to verify remediation...');
+    // Step 6: Change alert status to RESOLVED (final step)
+    Logger.info('Step 6: Changing alert status IN_PROGRESS → RESOLVED...');
+    const toResolvedResponse = await testSetup.alertLifeCycle.alertsClient.changeAlertStatus(
+      originalAlertDetails.id,
+      AlertStatus.RESOLVED
+    );
+    expect(toResolvedResponse.status()).toBe(200);
+    Logger.info(`✓ Status changed to RESOLVED for alert ${originalAlertDetails.id}`);
+
+    // Step 7: Start another scan to check if identical alert is re-detected
+    Logger.info('Step 7: Starting rescan to verify remediation effectiveness...');
     await testSetup.alertLifeCycle.scan();
     Logger.info(`✓ Rescan completed`);
 
-    // Get alerts after scan
+    // Step 8: Get alerts after rescan
+    Logger.info('Step 8: Retrieving alerts after rescan...');
     const alertsAfterRescan = await testSetup.alertLifeCycle.getAlerts();
-    Logger.info(`Total alerts after rescan: ${alertsAfterRescan.length}`);
+    Logger.info(`✓ Total alerts after rescan: ${alertsAfterRescan.length}`);
 
-    // Verify the original alert is NOT re-detected
-    Logger.info('Verifying the original alert is NOT re-detected...');
+    // Step 9: Verify that no identical alert to the remediated alert was created
+    Logger.info('Step 9: Verifying identical alert was NOT re-detected by rescan...');
     const redetectedAlert = alertsAfterRescan.find((alert: any) =>
       alert.policyId === originalAlertDetails.policyId &&
       alert.assetId === originalAlertDetails.assetId &&
       alert.violationType === originalAlertDetails.violationType &&
       alert.id !== originalAlertDetails.id &&
-      alert.status === 'OPEN'
+      (alert.status === 'OPEN' || alert.status === 'REMEDIATION_IN_PROGRESS')
     );
 
-    Logger.info(`Original alert details: ID=${originalAlertDetails.id}, Policy=${originalAlertDetails.policyId}, Asset=${originalAlertDetails.assetId}, ViolationType=${originalAlertDetails.violationType}`);
-
     if (redetectedAlert) {
-      Logger.error(`❌ EXPECTED FAILURE: Original alert was re-detected! ID=${redetectedAlert.id}`);
-      Logger.info(`This means remediation did NOT work - the same issue was detected again by rescan`);
+      Logger.error(`❌ Identical alert was re-detected! ID=${redetectedAlert.id}`);
+      Logger.error(`Original: ID=${originalAlertDetails.id}, Policy=${originalAlertDetails.policyId}, Asset=${originalAlertDetails.assetId}, ViolationType=${originalAlertDetails.violationType}`);
     } else {
-      Logger.info(`✓ Original alert was NOT re-detected - remediation was effective`);
+      Logger.info(`✓ Identical alert was NOT re-detected - remediation was effective`);
     }
 
     expect(redetectedAlert).toBeFalsy();
