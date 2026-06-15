@@ -7,7 +7,7 @@ export const TEST_USERS = {
   },
   INVALID_USER: {
     username: 'invalid@example.com',
-    password: 'WrongPassword',
+      password: 'WrongPassword',
   },
 };
 

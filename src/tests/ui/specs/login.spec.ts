@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../pages/loginPage';
-import { TEST_USERS, MESSAGES } from '../../../utilities/config/constants';
+import { TEST_USERS } from '../../../utilities/config/constants';
 import { Logger } from '../../../utilities/helpers/logger';
 
 test.describe('UI - Login Tests', () => {

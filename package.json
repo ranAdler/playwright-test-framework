@@ -7,19 +7,18 @@
     "test": "playwright test",
 
     "test:api": "playwright test src/tests/api",
+    "test:api:alerts": "playwright test src/tests/api/specs/alerts.spec.ts",
 
     "test:api:login": "playwright test src/tests/api/specs/login.spec.ts",
     "test:api:reset": "playwright test src/tests/api/specs/reset.spec.ts",
     "test:api:scan": "playwright test src/tests/api/specs/scan.spec.ts",
-    "test:api:alerts": "playwright test src/tests/api/specs/alerts.spec.ts --timeout=180000",
     "test:api:policies": "playwright test src/tests/api/specs/policies.spec.ts",
 
 
     "test:ui": "playwright test src/tests/ui",
     "test:ui:login": "playwright test src/tests/ui/specs/login.spec.ts",
-    "test:ui:alerts": "playwright test src/tests/ui/specs/alerts.spec.ts",
-    "test:debug": "playwright test --debug",
-    "test:headed": "playwright test --headed"
+    "test:ui:alerts": "playwright test src/tests/ui/specs/alerts.spec.ts"
+
   },
   "keywords": [],
   "author": "",
