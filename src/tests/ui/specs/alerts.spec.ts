@@ -42,7 +42,6 @@ test.describe('UI - Alerts Tests with Alert Life Cycle', () => {
     const totalAlertsCount = await alertsPage.getTotalAlertsCount();
     Logger.info(`Total alerts from UI: ${totalAlertsCount}`);
     expect(totalAlertsCount).toBe(6);
-    //TODO do we want to verify in Other places as well ? do we have other test that doing it ?
 
     const firstAlertTitle = await alertsPage.getFirstAlertTitle();
     Logger.info(`First alert title: ${firstAlertTitle}`);

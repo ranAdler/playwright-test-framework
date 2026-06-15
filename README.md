@@ -9,6 +9,92 @@ This project provides a robust testing infrastructure for:
 - **UI Testing**: Browser-based testing with Chromium and other browsers
 - **Test Management**: Organized test suites with fixtures and utilities
 
+## Project Structure
+
+```
+src/
+├── tests/
+│   ├── api/                          # API testing layer
+│   │   ├── endpoints/                # API client classes for each endpoint
+│   │   │   ├── baseClient.ts         # Base class for all API clients
+│   │   │   ├── loginClient.ts
+│   │   │   ├── scanClient.ts
+│   │   │   ├── policiesClient.ts
+│   │   │   ├── alertsClient.ts
+│   │   │   └── resetClient.ts
+│   │   ├── specs/                    # API test suites
+│   │   │   ├── login.spec.ts
+│   │   │   ├── scan.spec.ts
+│   │   │   ├── policies.spec.ts
+│   │   │   ├── alerts.spec.ts
+│   │   │   └── reset.spec.ts
+│   │   ├── helpers/                  # API workflow helpers
+│   │   │   ├── baseLifeCycle.ts      # Base class for lifecycle management
+│   │   │   ├── policyLifeCycle.ts    # Policy workflow orchestration
+│   │   │   ├── alertLifeCycle.ts     # Alert workflow orchestration
+│   │   │   ├── alertStatusWaiter.ts  # Alert status polling utility
+│   │   │   └── testSetup.ts          # API test initialization
+│   │   ├── resources/                # Test data payloads
+│   │   │   ├── autoRemediatePolicyPayload.ts
+│   │   │   └── alertRemediationPolicyPayload.ts
+│   │   ├── enums/                    # API-specific enumerations
+│   │   │   └── alertStatus.enum.ts
+│   │   └── types/                    # API type definitions
+│   │
+│   ├── ui/                           # UI testing layer
+│   │   ├── pages/                    # Page Object Model classes
+│   │   │   ├── basePage.ts           # Base class for all pages
+│   │   │   ├── loginPage.ts
+│   │   │   ├── navigatePage.ts       # Navigation hub page
+│   │   │   ├── scanActivityPage.ts
+│   │   │   ├── policiesPage.ts
+│   │   │   └── alerts/
+│   │   │       ├── alertsPage.ts
+│   │   │       ├── alertItemPage.ts
+│   │   │       └── searchPage.ts
+│   │   ├── specs/                    # UI test suites
+│   │   │   ├── login.spec.ts
+│   │   │   └── alerts.spec.ts
+│   │   ├── helpers/                  # UI workflow helpers
+│   │   │   └── testSetup.ts          # UI test initialization
+│   │   └── enums/                    # UI-specific enumerations
+│   │       ├── pages.enum.ts
+│   │       ├── alertStatus.enum.ts
+│   │       ├── alertAssignee.enum.ts
+│   │       └── autoRemediateStatus.enum.ts
+│   │
+│   └── fixtures/                     # Playwright fixtures for test setup/teardown
+│       └── testSetupFixture.ts       # Login and scan automation fixtures
+│
+└── utilities/                        # Shared utilities and configuration
+    ├── config/                       # Environment and constants
+    │   ├── env.ts                    # Environment configuration
+    │   └── constants.ts              # Application constants
+    └── helpers/                      # Shared helper utilities
+        └── logger.ts                 # Logging utility
+```
+
+### Key Directory Explanations
+
+- **`endpoints/`**: Encapsulates API client classes, each responsible for communicating with a specific API endpoint. Uses a base class pattern for common functionality.
+
+- **`specs/`**: Contains test files organized by feature or endpoint. Each spec file contains one or more test cases using Playwright's test API.
+
+- **`helpers/`** (Lifecycle Classes): Contains workflow orchestrators that manage complex, multi-step operations:
+  - `BaseLifeCycle`: Abstract base class with common setup/cleanup/scan logic
+  - `PolicyLifeCycle`: Handles policy creation and management workflows
+  - `AlertLifeCycle`: Handles alert creation and management workflows
+
+- **`pages/`**: Implements the Page Object Model pattern where each page class encapsulates selectors, locators, and actions for a specific UI page.
+
+- **`resources/`**: Contains test data factories and payload templates used across multiple tests to maintain consistency.
+
+- **`enums/`**: Defines enumeration types for status values, page names, and other domain-specific constants.
+
+- **`fixtures/`**: Provides Playwright fixtures that automatically run setup/teardown code before and after tests, reducing boilerplate in test files.
+
+- **`utilities/`**: Houses shared code used across both API and UI tests, including configuration management and logging.
+
 ## UI Testing Strategy: Fixtures for Efficiency
 
 To optimize test execution speed and focus on testing what matters, we leverage Playwright fixtures for test setup and teardown. Our UI tests use a fixture-based approach that handles:
