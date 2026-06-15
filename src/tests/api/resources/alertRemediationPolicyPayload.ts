@@ -16,7 +16,7 @@ export const alertRemediationPolicyPayload = {
     violationType: 'PUBLIC_ACCESS',
     remediation: {
       remediationType: 'DISABLE_PUBLIC_ACCESS',
-      autoRemediate: false,
+      autoRemediate: true,
       remediationPriority: 'HIGH',
       remediationDue: {
         value: 2,
