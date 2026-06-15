@@ -15,6 +15,7 @@ export const TIMEOUTS = {
   SHORT: 5000,
   MEDIUM: 10000,
   LONG: 30000,
+  SCAN_WAIT: 130000,
 };
 
 export const MESSAGES = {
@@ -32,4 +33,13 @@ export const APP_CONFIG = {
 export const API_ENDPOINTS = {
   SCAN: '/scans',
   SCAN_DETAILS: (id: string) => `/scans/${id}`,
+};
+
+export const TEST_DATA = {
+  ANALYSTS: {
+    REMEDIATION_OWNER: 'u_analyst',
+  },
+  EXPECTED_ALERT_COUNTS: {
+    AFTER_SCAN: 6,
+  },
 };

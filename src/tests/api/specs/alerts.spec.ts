@@ -3,6 +3,7 @@ import { Logger } from '../../../utilities/helpers/logger';
 import { AlertStatus } from '../enums/alertStatus.enum';
 import { alertRemediationPolicyPayload } from '../resources/alertRemediationPolicyPayload';
 import { AlertStatusWaiter } from '../helpers/alertStatusWaiter';
+import { TIMEOUTS, TEST_DATA } from '../../../utilities/config/constants';
 
 test.describe.serial('API - Alerts Tests', () => {
 
@@ -56,22 +57,22 @@ test.describe.serial('API - Alerts Tests', () => {
     Logger.info(`✓ Status changed to IN_PROGRESS for alert ${originalAlertDetails.id}`);
 
     Logger.info('Step 4b: Assigning alert to remediation owner...');
-    await testSetup.alertLifeCycle.alertsClient.assignAlert(originalAlertDetails.id, 'u_analyst');
-    Logger.info(`✓ Alert assigned to u_analyst`);
+    await testSetup.alertLifeCycle.alertsClient.assignAlert(originalAlertDetails.id, TEST_DATA.ANALYSTS.REMEDIATION_OWNER);
+    Logger.info(`✓ Alert assigned to ${TEST_DATA.ANALYSTS.REMEDIATION_OWNER}`);
 
     Logger.info('Step 5: Adding remediation verification comment...');
     await testSetup.alertLifeCycle.alertsClient.addRemediationNote(originalAlertDetails.id, 'Remediation verified successfully and issue is resolved');
     Logger.info(`✓ Note added: "Remediation verified successfully and issue is resolved"`);
 
 
-    // Loop 1: Wait 130 seconds, then check every 500ms for 30 seconds for status change
+    // Wait for remediation to complete before checking status change
     const statusWaiter = new AlertStatusWaiter();
     const waitResult = await statusWaiter.waitForAlertStatus(
       originalAlertDetails.id,
       () => testSetup.alertLifeCycle.getAlerts(),
-      130000,  // Sleep 130 seconds
-      500,     // Check every 500ms
-      30000    // Check for 30 seconds
+      TIMEOUTS.SCAN_WAIT,  // Initial wait for remediation (130 seconds)
+      500,                 // Check every 500ms
+      TIMEOUTS.LONG        // Polling timeout (30 seconds)
     );
 
     // Step 6: Change alert status to RESOLVED (final step)

@@ -91,7 +91,7 @@ export class PolicyLifeCycle {
     if (response.status() === 200) {
       return await response.json();
     }
-    return [];
+    throw new Error(`Failed to fetch policies: HTTP ${response.status()}`);
   }
 
   async getAlerts() {
@@ -99,7 +99,7 @@ export class PolicyLifeCycle {
     if (response.status() === 200) {
       return await response.json();
     }
-    return [];
+    throw new Error(`Failed to fetch alerts: HTTP ${response.status()}`);
   }
 
   async getAlertsCount(): Promise<number> {

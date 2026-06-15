@@ -91,6 +91,6 @@ export class AlertLifeCycle {
     if (response.status() === 200) {
       return await response.json();
     }
-    return [];
+    throw new Error(`Failed to fetch alerts: HTTP ${response.status()}`);
   }
 }
