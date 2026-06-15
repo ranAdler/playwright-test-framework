@@ -55,6 +55,10 @@ test.describe.serial('API - Alerts Tests', () => {
     await testSetup.alertLifeCycle.alertsClient.changeAlertStatus(originalAlertDetails.id, AlertStatus.IN_PROGRESS);
     Logger.info(`✓ Status changed to IN_PROGRESS for alert ${originalAlertDetails.id}`);
 
+    Logger.info('Step 4b: Assigning alert to remediation owner...');
+    await testSetup.alertLifeCycle.alertsClient.assignAlert(originalAlertDetails.id, 'u_analyst');
+    Logger.info(`✓ Alert assigned to u_analyst`);
+
     Logger.info('Step 5: Adding remediation verification comment...');
     await testSetup.alertLifeCycle.alertsClient.addRemediationNote(originalAlertDetails.id, 'Remediation verified successfully and issue is resolved');
     Logger.info(`✓ Note added: "Remediation verified successfully and issue is resolved"`);
