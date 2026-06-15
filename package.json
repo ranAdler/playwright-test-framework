@@ -12,6 +12,7 @@
     "test:api:reset": "playwright test src/tests/api/specs/reset.spec.ts",
     "test:api:scan": "playwright test src/tests/api/specs/scan.spec.ts",
     "test:api:alerts": "playwright test src/tests/api/specs/alerts.spec.ts",
+    "test:api:policies": "playwright test src/tests/api/specs/policies.spec.ts",
 
 
     "test:ui": "playwright test src/tests/ui",

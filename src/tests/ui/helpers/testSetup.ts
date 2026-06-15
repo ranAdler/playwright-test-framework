@@ -1,5 +1,6 @@
 import { APIRequestContext, Page } from '@playwright/test';
 import { AlertLifeCycle } from '../../api/helpers/alertLifeCycle';
+import { PolicyLifeCycle } from '../../api/helpers/policyLifeCycle';
 import { LoginPage } from '../pages/loginPage';
 import { TEST_USERS } from '../../../utilities/config/constants';
 import { Logger } from '../../../utilities/helpers/logger';
@@ -7,16 +8,18 @@ import config from '../../../utilities/config/env';
 
 export class TestSetup {
   public alertLifeCycle: AlertLifeCycle;
+  public policyLifeCycle: PolicyLifeCycle;
   private page: Page | null = null;
   private request: APIRequestContext;
 
   constructor(request: APIRequestContext) {
     this.request = request;
     this.alertLifeCycle = new AlertLifeCycle(request);
+    this.policyLifeCycle = new PolicyLifeCycle(request);
   }
 
   /**
-   * Setup: Initialize AlertLifeCycle with API login and scan
+   * Setup: Initialize AlertLifeCycle and PolicyLifeCycle with API login and scan
    * Call this in test.beforeEach
    */
   async setup(): Promise<void> {
@@ -28,6 +31,13 @@ export class TestSetup {
       TEST_USERS.VALID_USER.password
     );
     Logger.info('AlertTestSetup: Login complete');
+
+    // Setup PolicyLifeCycle with the same auth token
+    await this.policyLifeCycle.setup(
+      TEST_USERS.VALID_USER.username,
+      TEST_USERS.VALID_USER.password
+    );
+    Logger.info('AlertTestSetup: PolicyLifeCycle setup complete');
 
     // Create a scan via API
     await this.alertLifeCycle.scan();
