@@ -3,6 +3,7 @@ import { Logger } from '../../../utilities/helpers/logger';
 import { AlertStatus } from '../enums/alertStatus.enum';
 import { alertRemediationPolicyPayload } from '../resources/alertRemediationPolicyPayload';
 import { AlertStatusWaiter } from '../helpers/alertStatusWaiter';
+import { extractAlertDetails, findRedetectedAlert } from '../helpers/alertHelper';
 import { TIMEOUTS, TEST_DATA } from '../../../utilities/config/constants';
 
 test.describe.serial('API - Alerts Tests', () => {
@@ -41,14 +42,7 @@ test.describe.serial('API - Alerts Tests', () => {
 
     // Save the original alert details for verification after rescan
     Logger.info('Step 3: Saving original alert details for post-rescan verification...');
-    const originalAlertDetails = {
-      id: targetAlert.id,
-      policyId: targetAlert.policyId,
-      policyName: targetAlert.policyName,
-      assetId: targetAlert.assetId,
-      violationType: targetAlert.violationType,
-      status: targetAlert.status
-    };
+    const originalAlertDetails = extractAlertDetails(targetAlert);
     Logger.info(`✓ Saved alert details: ID=${originalAlertDetails.id}, Policy=${originalAlertDetails.policyId}, Asset=${originalAlertDetails.assetId}, ViolationType=${originalAlertDetails.violationType}`);
 
     // Step 4: Change alert status to IN_PROGRESS (first step)
@@ -99,13 +93,7 @@ test.describe.serial('API - Alerts Tests', () => {
 
     // Step 9: Verify that no identical alert to the remediated alert was created
     Logger.info('Step 9: Verifying identical alert was NOT re-detected by rescan...');
-    const redetectedAlert = alertsAfterRescan.find((alert: any) =>
-      alert.policyId === originalAlertDetails.policyId &&
-      alert.assetId === originalAlertDetails.assetId &&
-      alert.violationType === originalAlertDetails.violationType &&
-      alert.id !== originalAlertDetails.id &&
-      (alert.status === 'OPEN' || alert.status === 'REMEDIATION_IN_PROGRESS')
-    );
+    const redetectedAlert = findRedetectedAlert(alertsAfterRescan, originalAlertDetails);
 
     if (redetectedAlert) {
       Logger.error(`❌ Identical alert was re-detected! ID=${redetectedAlert.id}`);
